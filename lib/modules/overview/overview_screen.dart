@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:contacts_app/modules/config/helper/constants.dart';
+import 'package:contacts_app/modules/scan/components/camera_screen.dart';
+import 'package:contacts_app/modules/scan/scan_screen.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,10 +45,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
   imgFromGallery() async {
     PickedFile imagePicked = await ImagePicker()
         .getImage(source: ImageSource.gallery, imageQuality: 50);
-    File image = File(imagePicked.path);
 
     setState(() {
-      _image = image;
+      if (imagePicked != null) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (BuildContext context) => ScanScreen(
+                  image: File(imagePicked.path),
+                )));
+      }
     });
   }
 
@@ -77,7 +83,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     leading: new Icon(Icons.cancel),
                     title: new Text('Cancel'),
                     onTap: () {
-                      imgFromCamera();
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) => CameraScreen()));
                       Navigator.of(context).pop();
                     },
                   )
@@ -104,7 +111,15 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   getAllContacts() async {
-    List colors = [Colors.green, Colors.indigo, Colors.yellow, Colors.orange];
+    List colors = [
+      Colors.green,
+      Colors.indigo,
+      Colors.yellow,
+      Colors.orange,
+      Colors.pink,
+      Colors.blue,
+      Colors.red
+    ];
     int colorIndex = 0;
     List<ContactModel> _contacts =
         (await ContactsService.getContacts()).map((contact) {

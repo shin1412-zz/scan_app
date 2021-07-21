@@ -17,7 +17,9 @@ class ContactsList extends StatelessWidget {
           ContactModel contact = contacts[index];
 
           return ListTile(
-              title: Text(contact.info.displayName),
+              title: Text(contact.info.displayName != null
+                  ? contact.info.displayName
+                  : ""),
               subtitle: Text(contact.info.phones.length > 0
                   ? contact.info.phones.elementAt(0).value
                   : ''),

@@ -1,7 +1,18 @@
+import 'package:camera/camera.dart';
 import 'package:contacts_app/modules/overview/overview_screen.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+// Global variable for storng the list of cameras availabel
+List<CameraDescription> cameras = [];
+void main() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print(e);
+  }
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
