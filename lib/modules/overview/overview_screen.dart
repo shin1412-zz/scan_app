@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:contacts_app/modules/config/helper/constants.dart';
-import 'package:contacts_app/modules/scan/components/camera_screen.dart';
 import 'package:contacts_app/modules/scan/scan_screen.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,6 @@ class _OverviewScreenState extends State<OverviewScreen> {
   Map<String, Color> contactsColorMap = new Map();
   TextEditingController searchController = new TextEditingController();
   bool contactsLoaded = false;
-  File _image;
 
   @override
   void initState() {
@@ -32,19 +30,9 @@ class _OverviewScreenState extends State<OverviewScreen> {
     getPermissions();
   }
 
-  imgFromCamera() async {
-    PickedFile imagePicked = await ImagePicker()
-        .getImage(source: ImageSource.camera, imageQuality: 50);
-    File image = File(imagePicked.path);
-
-    setState(() {
-      _image = image;
-    });
-  }
-
-  imgFromGallery() async {
-    PickedFile imagePicked = await ImagePicker()
-        .getImage(source: ImageSource.gallery, imageQuality: 50);
+  getImageFromSource(ImageSource source) async {
+    PickedFile imagePicked =
+        await ImagePicker().getImage(source: source, imageQuality: 50);
 
     setState(() {
       if (imagePicked != null) {
@@ -68,14 +56,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
                       leading: new Icon(Icons.photo_library),
                       title: new Text('Photo Library'),
                       onTap: () {
-                        imgFromGallery();
+                        getImageFromSource(ImageSource.gallery);
                         Navigator.of(context).pop();
                       }),
                   ListTile(
                     leading: new Icon(Icons.photo_camera),
                     title: new Text('Camera'),
                     onTap: () {
-                      imgFromCamera();
+                      getImageFromSource(ImageSource.camera);
                       Navigator.of(context).pop();
                     },
                   ),
@@ -83,8 +71,6 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     leading: new Icon(Icons.cancel),
                     title: new Text('Cancel'),
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => CameraScreen()));
                       Navigator.of(context).pop();
                     },
                   )

@@ -1,12 +1,45 @@
 import 'dart:io';
-
+import 'dart:ui';
+import 'dart:async';
+import 'package:contacts_app/modules/config/api/firebase_ml_api.dart';
 import 'package:contacts_app/modules/config/helper/constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class ScanScreen extends StatelessWidget {
+class ScanScreen extends StatefulWidget {
   const ScanScreen({Key key, this.image}) : super(key: key);
   final File image;
+
+  @override
+  _ScanScreenState createState() => _ScanScreenState();
+}
+
+class _ScanScreenState extends State<ScanScreen> {
+  File image;
+  String result = 'Loading..';
+  List<String> contactInfo = [];
+
+  scanText() async {
+    final text = await FirebaseMLApi.recogniseText(image);
+    setText(text);
+  }
+
+  setText(String newText) {
+    setState(() {
+      result = newText;
+      contactInfo = result.split("\n");
+      print(contactInfo);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    image = widget.image;
+    setState(() {
+      scanText();
+      print(contactInfo);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,19 +88,31 @@ class ScanScreen extends StatelessWidget {
             ),
           ),
         ),
-        body: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(20),
-          height: 250,
-          child: image != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(
-                    image,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              : Container(),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20),
+                height: 250,
+                child: image != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(
+                          image,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Container(),
+              ),
+              Text(result),
+              SizedBox(
+                height: 20,
+              ),
+              // Text(contactInfo[0])
+              // Text(contactInfo[0])
+            ],
+          ),
         ),
       ),
     );
