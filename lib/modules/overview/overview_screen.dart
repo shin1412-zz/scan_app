@@ -1,14 +1,16 @@
+import 'dart:io';
+
+import 'package:contacts_app/modules/config/helper/constants.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'components/contacts-list.dart';
 import 'model/contact_model.dart';
 
 class OverviewScreen extends StatefulWidget {
-  OverviewScreen({Key key, this.title}) : super(key: key);
-
-  final String title;
+  OverviewScreen({Key key}) : super(key: key);
 
   @override
   _OverviewScreenState createState() => _OverviewScreenState();
@@ -20,11 +22,70 @@ class _OverviewScreenState extends State<OverviewScreen> {
   Map<String, Color> contactsColorMap = new Map();
   TextEditingController searchController = new TextEditingController();
   bool contactsLoaded = false;
+  File _image;
 
   @override
   void initState() {
     super.initState();
     getPermissions();
+  }
+
+  imgFromCamera() async {
+    PickedFile imagePicked = await ImagePicker()
+        .getImage(source: ImageSource.camera, imageQuality: 50);
+    File image = File(imagePicked.path);
+
+    setState(() {
+      _image = image;
+    });
+  }
+
+  imgFromGallery() async {
+    PickedFile imagePicked = await ImagePicker()
+        .getImage(source: ImageSource.gallery, imageQuality: 50);
+    File image = File(imagePicked.path);
+
+    setState(() {
+      _image = image;
+    });
+  }
+
+  _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: new Wrap(
+                children: <Widget>[
+                  ListTile(
+                      leading: new Icon(Icons.photo_library),
+                      title: new Text('Photo Library'),
+                      onTap: () {
+                        imgFromGallery();
+                        Navigator.of(context).pop();
+                      }),
+                  ListTile(
+                    leading: new Icon(Icons.photo_camera),
+                    title: new Text('Camera'),
+                    onTap: () {
+                      imgFromCamera();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  ListTile(
+                    leading: new Icon(Icons.cancel),
+                    title: new Text('Cancel'),
+                    onTap: () {
+                      imgFromCamera();
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   getPermissions() async {
@@ -96,50 +157,81 @@ class _OverviewScreenState extends State<OverviewScreen> {
     bool listItemsExist =
         ((isSearching == true && contactsFiltered.length > 0) ||
             (isSearching != true && contacts.length > 0));
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: <Widget>[
-            Container(
-              child: TextField(
-                controller: searchController,
-                decoration: InputDecoration(
-                    labelText: 'Search',
-                    border: new OutlineInputBorder(
-                        borderSide: new BorderSide(
-                            color: Theme.of(context).primaryColor)),
-                    prefixIcon: Icon(Icons.search,
-                        color: Theme.of(context).primaryColor)),
-              ),
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: Scaffold(
+        appBar: AppBar(
+          leadingWidth: 120,
+          leading: Container(
+            padding: EdgeInsets.only(left: 20),
+            alignment: Alignment.center,
+            child: Text(
+              'Contacts',
+              style: TextStyle(color: Colors.white, fontSize: 20),
             ),
-            contactsLoaded == true
-                ? // if the contacts have not been loaded yet
-                listItemsExist == true
-                    ? // if we have contacts to show
-                    ContactsList(
-                        contacts:
-                            isSearching == true ? contactsFiltered : contacts,
-                      )
-                    : Container(
-                        padding: EdgeInsets.only(top: 40),
-                        child: Text(
-                          isSearching
-                              ? 'No search results to show'
-                              : 'No contacts exist',
-                          style: TextStyle(color: Colors.grey, fontSize: 20),
-                        ))
-                : Container(
-                    // still loading contacts
-                    padding: EdgeInsets.only(top: 40),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-          ],
+          ),
+          backgroundColor: Constants.kPrimaryColor,
+          elevation: 0,
+        ),
+        bottomNavigationBar: BottomAppBar(
+            color: Constants.kPrimaryColor,
+            child: GestureDetector(
+                onTap: () {
+                  _showPicker(context);
+                },
+                child: Container(
+                  height: 60,
+                  padding: EdgeInsets.only(left: 20),
+                  alignment: Alignment.centerLeft,
+                  child: Icon(
+                    Icons.camera_alt_rounded,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                )),
+            elevation: 0),
+        body: Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: <Widget>[
+              Container(
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                      labelText: 'Search',
+                      border: new OutlineInputBorder(
+                          borderSide: new BorderSide(
+                              color: Theme.of(context).primaryColor)),
+                      prefixIcon: Icon(Icons.search,
+                          color: Theme.of(context).primaryColor)),
+                ),
+              ),
+              contactsLoaded == true
+                  ? // if the contacts have not been loaded yet
+                  listItemsExist == true
+                      ? // if we have contacts to show
+                      ContactsList(
+                          contacts:
+                              isSearching == true ? contactsFiltered : contacts,
+                        )
+                      : Container(
+                          padding: EdgeInsets.only(top: 40),
+                          child: Text(
+                            isSearching
+                                ? 'No search results to show'
+                                : 'No contacts exist',
+                            style: TextStyle(color: Colors.grey, fontSize: 20),
+                          ))
+                  : Container(
+                      // still loading contacts
+                      padding: EdgeInsets.only(top: 40),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+            ],
+          ),
         ),
       ),
     );

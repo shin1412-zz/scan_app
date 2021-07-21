@@ -26,6 +26,10 @@
 	<string>LaunchScreen</string>
 	<key>NSContactsUsageDescription</key>  
 	<string>This app requires contacts access to function properly.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires photo access to function properly.</string>
+	<key>NSCamareaLibraryUsageDescription</key>
+	<string>This app requires camara access to function properly.</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>

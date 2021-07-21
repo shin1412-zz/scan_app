@@ -1,4 +1,3 @@
-import 'package:contacts_app/modules/overview/model/contact_model.dart';
 import 'package:contacts_app/modules/overview/overview_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +11,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: OverviewScreen(title: 'Flutter Contacts'),
+      home: OverviewScreen(),
     );
   }
 }
